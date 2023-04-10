@@ -1,0 +1,4 @@
+{
+  "X": "\njsonObj := gabs.New()\n\njsonObj.Array(\"foo\", \"array\")\n// Or .ArrayP(\"foo.array\")\n\njsonObj.ArrayAppend(10, \"foo\", \"array\")\njsonObj.ArrayAppend(20, \"foo\", \"array\")\njsonObj.ArrayAppend(30, \"foo\", \"array\")\n\nfmt.Println(jsonObj.String())\n",
+  "Y": "\n{\n  \"outer\": {\n    \"inner\": {\n      \"value\": 10,\n      \"value2\": 20\n    },\n    \"inner2\": {\n      \"value3\": 30\n    }\n  }\n}\n"
+}
