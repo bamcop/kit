@@ -140,7 +140,11 @@ func (t *TaskRunner[T]) handle(goid int, item Task) (err error) {
 		return err
 	}
 
-	slog.LogAttrs(context.Background(), slog.LevelInfo, "task done", slog.String("id", item.ID()))
+	slog.LogAttrs(
+		context.Background(), slog.LevelInfo, "task done",
+		slog.String("id", item.ID()),
+		slog.Int("count", len(t.succList)+1),
+	)
 	t.fn().OnSucc(item)
 
 	t.Lock()
