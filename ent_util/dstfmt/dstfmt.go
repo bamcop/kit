@@ -2,11 +2,12 @@ package dstfmt
 
 import (
 	"bytes"
-	"github.com/dave/dst"
-	"github.com/dave/dst/decorator"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/dave/dst"
+	"github.com/dave/dst/decorator"
 )
 
 func H(filename string) {
