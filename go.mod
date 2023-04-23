@@ -14,7 +14,7 @@ require (
 require (
 	ariga.io/atlas v0.10.0 // indirect
 	entgo.io/contrib v0.3.5 // indirect
-	entgo.io/ent v0.11.10 // indirect
+	entgo.io/ent v0.12.2 // indirect
 	github.com/Jeffail/gabs/v2 v2.7.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
