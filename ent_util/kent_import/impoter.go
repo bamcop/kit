@@ -10,6 +10,7 @@ import (
 	"entgo.io/contrib/schemast"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema/field"
 	"github.com/bamcop/kit/ent_util/dstfmt"
 	"github.com/iancoleman/strcase"
 
@@ -53,18 +54,34 @@ func (i *importer) Execute() error {
 		}
 
 		for _, column := range table.Columns {
-			column := column
+			var (
+				column  = column
+				builder *fieldBuilder
+			)
+
+			switch column.Type.Raw {
+			case "string":
+				builder = NewFieldBuilder(column.Name, field.String)
+
+			}
 
 			mutator.Fields = append(
 				mutator.Fields,
 
-				newFieldBuilder(i.FieldProvider(table.Name, column.Name)).
-					SchemaType(map[string]string{
-						dialect.MySQL: column.Type.Raw, // Override MySQL.
-					}).
+				builder.SchemaType(map[string]string{
+					dialect.MySQL: column.Type.Raw, // Override MySQL.
+				}).
 					Default(column.Default).
-					StructTag(newStructTag(column.Name)).
-					Comment(column.Attrs),
+					StructTag(newStructTag(column.Name)),
+				//Comment(column.Attrs)
+
+				//newFieldBuilder(i.FieldProvider(table.Name, column.Name)).
+				//	SchemaType(map[string]string{
+				//		dialect.MySQL: column.Type.Raw, // Override MySQL.
+				//	}).
+				//	Default(column.Default).
+				//	StructTag(newStructTag(column.Name)).
+				//	Comment(column.Attrs),
 			)
 		}
 

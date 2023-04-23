@@ -6,23 +6,28 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-type fieldBuilder[T any] struct {
-	obj T
+type fieldBuilder struct {
+	obj any
 }
 
-func NewFieldBuilder[T any](name string, f func(str string) T) *fieldBuilder[T] {
-	return &fieldBuilder[T]{
-		obj: f(name),
+func NewFieldBuilder(name string, f any) *fieldBuilder {
+	in := []reflect.Value{
+		reflect.ValueOf(name),
+	}
+	ou := reflect.ValueOf(f).Call(in)[0]
+
+	return &fieldBuilder{
+		obj: ou.Interface(),
 	}
 }
 
-func (b *fieldBuilder[T]) Descriptor() *field.Descriptor {
+func (b *fieldBuilder) Descriptor() *field.Descriptor {
 	v := reflect.ValueOf(b.obj).MethodByName("Descriptor").Call(nil)[0]
 
 	return v.Interface().(*field.Descriptor)
 }
 
-func (b *fieldBuilder[T]) StructTag(s string) *fieldBuilder[T] {
+func (b *fieldBuilder) StructTag(s string) *fieldBuilder {
 	in := []reflect.Value{
 		reflect.ValueOf(s),
 	}
@@ -32,7 +37,7 @@ func (b *fieldBuilder[T]) StructTag(s string) *fieldBuilder[T] {
 	return b
 }
 
-func (b *fieldBuilder[T]) SchemaType(types map[string]string) *fieldBuilder[T] {
+func (b *fieldBuilder) SchemaType(types map[string]string) *fieldBuilder {
 	in := []reflect.Value{
 		reflect.ValueOf(types),
 	}
@@ -42,7 +47,7 @@ func (b *fieldBuilder[T]) SchemaType(types map[string]string) *fieldBuilder[T] {
 	return b
 }
 
-func (b *fieldBuilder[T]) Default(v any) *fieldBuilder[T] {
+func (b *fieldBuilder) Default(v any) *fieldBuilder {
 	in := []reflect.Value{
 		reflect.ValueOf(v),
 	}
