@@ -31,6 +31,25 @@ func NewImporter(dsn string, dir string, provider func(string, string) any) *imp
 	}
 }
 
+func (i *importer) FieldBuilder(column *schema.Column) any {
+	switch column.Type.Type.(type) {
+	case *schema.StringType:
+		return field.String
+	case *schema.IntegerType:
+		return field.Int
+	case *schema.FloatType:
+		return field.Float
+	case *schema.DecimalType:
+		return field.Float
+	case *schema.BoolType:
+		return field.Bool
+	case *schema.TimeType:
+		return field.String
+	default:
+		panic("not impl")
+	}
+}
+
 func (i *importer) Execute() error {
 	info := inspectInfo(i.DSN)
 
@@ -59,10 +78,10 @@ func (i *importer) Execute() error {
 				builder *fieldBuilder
 			)
 
-			switch column.Type.Raw {
-			case "string":
-				builder = NewFieldBuilder(column.Name, field.String)
-
+			if i.FieldProvider == nil || i.FieldProvider(table.Name, column.Name) == nil {
+				builder = NewFieldBuilder(column.Name, i.FieldBuilder(column))
+			} else {
+				builder = NewFieldBuilder(column.Name, i.FieldProvider(table.Name, column.Name))
 			}
 
 			mutator.Fields = append(
@@ -71,7 +90,7 @@ func (i *importer) Execute() error {
 				builder.SchemaType(map[string]string{
 					dialect.MySQL: column.Type.Raw, // Override MySQL.
 				}).
-					Default(column.Default).
+					//Default(column.Default).
 					StructTag(newStructTag(column.Name)),
 				//Comment(column.Attrs)
 

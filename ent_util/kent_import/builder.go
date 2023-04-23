@@ -3,6 +3,7 @@ package kent_import
 import (
 	"reflect"
 
+	"ariga.io/atlas/sql/schema"
 	"entgo.io/ent/schema/field"
 )
 
@@ -42,14 +43,23 @@ func (b *fieldBuilder) SchemaType(types map[string]string) *fieldBuilder {
 		reflect.ValueOf(types),
 	}
 
-	reflect.ValueOf(b.obj).MethodByName("SchemaType").Call(in)
+	f := reflect.ValueOf(b.obj).MethodByName("SchemaType")
+	if !f.IsValid() {
+		return b
+	}
+
+	f.Call(in)
 
 	return b
 }
 
-func (b *fieldBuilder) Default(v any) *fieldBuilder {
+func (b *fieldBuilder) Default(expr schema.Expr) *fieldBuilder {
+	if expr == nil {
+		return b
+	}
+
 	in := []reflect.Value{
-		reflect.ValueOf(v),
+		reflect.ValueOf(expr),
 	}
 
 	reflect.ValueOf(b.obj).MethodByName("Default").Call(in)
