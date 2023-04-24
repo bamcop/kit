@@ -81,3 +81,40 @@ func Wrap[T any](h func(*gin.Context, T) (any, error)) func(ctx *gin.Context) {
 		HandlerSuccess(ctx, resp)
 	}
 }
+
+type IGinContext interface {
+	GinContext() *gin.Context
+}
+
+func WrapX[T1 IGinContext, T2 any](h func(T1, T2) (any, error), f func(ctx *gin.Context) T1) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		ptr := new(T2)
+		if err := ctx.ShouldBind(ptr); err != nil {
+			HandlerBadRequest(ctx, err)
+			return
+		}
+
+		// 使用 go-playground/validator 验证结构体
+		if err := validate.Struct(ptr); err != nil {
+			HandlerBadRequest(ctx, err)
+			return
+		}
+
+		// 使用自定义验证
+		v := reflect.ValueOf(*ptr)
+		if v.Type().Implements(validatorAttrType) {
+			if err := v.Interface().(Validator).Validate(); err != nil {
+				HandlerBadRequest(ctx, err)
+				return
+			}
+		}
+
+		resp, err := h(f(ctx), *ptr)
+		if err != nil {
+			HandlerError(ctx, err)
+			return
+		}
+
+		HandlerSuccess(ctx, resp)
+	}
+}
