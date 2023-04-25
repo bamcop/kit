@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/bamcop/kit/debug"
 	"go.uber.org/zap"
@@ -55,9 +56,15 @@ func zapFileCore(filename string) zapcore.Core {
 	return core
 }
 
+// consoleTimeEncoder 用于在控制台显示时间
+func consoleTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString(t.Format("15:04:05.000"))
+}
+
 func zapConsoleCore() zapcore.Core {
 	encoderConfig := zap.NewDevelopmentEncoderConfig()
 	encoderConfig.EncodeLevel = zapcore.LowercaseColorLevelEncoder
+	encoderConfig.EncodeTime = consoleTimeEncoder
 
 	core := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(encoderConfig),
