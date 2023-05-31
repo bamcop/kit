@@ -26,3 +26,9 @@ func Exist(filename string) bool {
 	}
 	return true
 }
+
+func MustMkdirAll(path string) {
+	if err := os.MkdirAll(path, 0755); err != nil {
+		panic(err)
+	}
+}
