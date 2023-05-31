@@ -1,6 +1,7 @@
 package kent_import
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strings"
@@ -13,20 +14,34 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bamcop/kit/ent_util/dstfmt"
 	"github.com/iancoleman/strcase"
+	"github.com/samber/lo"
 
-	ents "entgo.io/ent/schema"
+	schema2 "entgo.io/ent/schema"
 )
 
 type importer struct {
 	DSN           string
 	SchemaDir     string
+	SkipFields    []string
+	AddImports    []string
 	FieldProvider func(table string, column string) any
+	AppendHandler func(name string, buffer *bytes.Buffer)
 }
 
-func NewImporter(dsn string, dir string, provider func(string, string) any) *importer {
+func NewImporter(
+	dsn string,
+	dir string,
+	skipFields []string,
+	addImports []string,
+	appendHandler func(string, *bytes.Buffer),
+	provider func(string, string) any,
+) *importer {
 	return &importer{
 		DSN:           dsn,
 		SchemaDir:     dir,
+		SkipFields:    skipFields,
+		AddImports:    addImports,
+		AppendHandler: appendHandler,
 		FieldProvider: provider,
 	}
 }
@@ -36,7 +51,7 @@ func (i *importer) FieldBuilder(column *schema.Column) any {
 	case *schema.StringType:
 		return field.String
 	case *schema.IntegerType:
-		return field.Int
+		return field.Int64
 	case *schema.FloatType:
 		return field.Float
 	case *schema.DecimalType:
@@ -45,6 +60,8 @@ func (i *importer) FieldBuilder(column *schema.Column) any {
 		return field.Bool
 	case *schema.TimeType:
 		return field.String
+	case *schema.BinaryType:
+		return field.Bytes
 	default:
 		panic("not impl")
 	}
@@ -62,13 +79,14 @@ func (i *importer) Execute() error {
 	for _, table := range info.Tables {
 		table := table
 
+		withCommentsEnabled := true
 		mutator := &schemast.UpsertSchema{
 			Name: strcase.ToCamel(strings.TrimLeft(table.Name, "t_")),
-			Annotations: []ents.Annotation{
+			Annotations: []schema2.Annotation{
 				entsql.Annotation{
-					Table: table.Name,
+					Table:        table.Name,
+					WithComments: &withCommentsEnabled,
 				},
-				entsql.WithComments(true),
 			},
 		}
 
@@ -77,6 +95,10 @@ func (i *importer) Execute() error {
 				column  = column
 				builder *fieldBuilder
 			)
+
+			if i.SkipFields != nil && lo.Contains(i.SkipFields, column.Name) {
+				continue
+			}
 
 			if i.FieldProvider == nil || i.FieldProvider(table.Name, column.Name) == nil {
 				builder = NewFieldBuilder(column.Name, i.FieldBuilder(column))
@@ -87,20 +109,12 @@ func (i *importer) Execute() error {
 			mutator.Fields = append(
 				mutator.Fields,
 
-				builder.SchemaType(map[string]string{
-					dialect.MySQL: column.Type.Raw, // Override MySQL.
-				}).
-					//Default(column.Default).
-					StructTag(newStructTag(column.Name)),
-				//Comment(column.Attrs)
-
-				//newFieldBuilder(i.FieldProvider(table.Name, column.Name)).
-				//	SchemaType(map[string]string{
-				//		dialect.MySQL: column.Type.Raw, // Override MySQL.
-				//	}).
-				//	Default(column.Default).
-				//	StructTag(newStructTag(column.Name)).
-				//	Comment(column.Attrs),
+				builder.Default(column.Default).
+					SchemaType(map[string]string{
+						dialect.MySQL: column.Type.Raw, // Override MySQL.
+					}).
+					StructTag(newStructTag(column.Name)).
+					Comment(column.Attrs),
 			)
 		}
 
@@ -112,7 +126,7 @@ func (i *importer) Execute() error {
 		panic(fmt.Errorf("failed: %v", err))
 	}
 
-	dstfmt.FmtDir(i.SchemaDir)
+	dstfmt.FmtDir(i.SchemaDir, i.AppendHandler, i.AddImports)
 	return nil
 }
 
