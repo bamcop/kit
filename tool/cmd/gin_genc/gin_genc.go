@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 
+	_ "github.com/OneOfOne/struct2ts"
 	"github.com/bamcop/kit/tool/cmd/gin_genc/helper"
 	"github.com/bamcop/kit/util/hos"
 	"github.com/iancoleman/strcase"
@@ -35,7 +36,7 @@ var (
 
 var (
 	filter = func(path string, info fs.FileInfo) bool {
-		if strings.Contains(path, "_gen") {
+		if strings.Contains(path, "_gen") && !strings.Contains(path, "gin_genc") {
 			return false
 		}
 		if strings.Contains(path, "tmp") {

@@ -29,6 +29,7 @@ require (
 )
 
 require (
+	github.com/OneOfOne/struct2ts v1.0.6 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/agiledragon/gomonkey v2.0.2+incompatible // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect

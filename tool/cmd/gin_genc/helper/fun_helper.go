@@ -20,10 +20,16 @@ func TargetShape(f *ast.FuncDecl) bool {
 		return false
 	}
 
-	// 检查第一个返回值是 `interface{}`
+	// 检查第一个返回值是 `interface{}` 或者 `any`
 	r1 := f.Type.Results.List[0]
 	if _, ok := r1.Type.(*ast.InterfaceType); !ok {
-		return false
+		v, ok := r1.Type.(*ast.Ident)
+		if !ok {
+			return false
+		}
+		if v.Name != "any" {
+			return false
+		}
 	}
 
 	// 检查第二个返回值是 `error`
