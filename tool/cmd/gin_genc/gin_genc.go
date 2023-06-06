@@ -294,7 +294,16 @@ type ExpandRecursively<T> = T extends (...args: infer A) => infer R
 	groups := lo.GroupBy(app.succ, func(item Handler) string {
 		return item.NameSpace
 	})
-	for key, handlers := range groups {
+	keys := maps.Keys(groups)
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
+	for _, key := range keys {
+		var (
+			key      = key
+			handlers = groups[key]
+		)
+
 		if key == "" {
 			for _, handler := range handlers {
 				buff.WriteString(fmt.Sprintf(
@@ -336,7 +345,15 @@ func (app *AppContext) WriteAxios() {
 	groups := lo.GroupBy(app.succ, func(item Handler) string {
 		return item.NameSpace
 	})
-	for key, handlers := range groups {
+	keys := maps.Keys(groups)
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
+	for _, key := range keys {
+		var (
+			key      = key
+			handlers = groups[key]
+		)
 		if key == "" {
 			for i, handler := range handlers {
 				b.WriteString(fmt.Sprintf("\tstatic %s(params) {\n", helper.Underscore(handler.Name)))
