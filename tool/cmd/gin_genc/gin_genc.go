@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -23,6 +24,8 @@ import (
 	"github.com/bamcop/kit/util/hos"
 	"github.com/iancoleman/strcase"
 	"github.com/samber/lo"
+	"github.com/sourcegraph/conc/iter"
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slog"
 	"golang.org/x/tools/go/packages"
 )
@@ -410,7 +413,14 @@ func WriteTypes(pkgName string, path string, items []Handler) {
 func ParseHandler(files map[string]*ast.File) ([]Handler, []Handler) {
 	var succ []Handler
 	var fail []Handler
-	for filename, _ := range files {
+
+	iterator := iter.Iterator[string]{
+		MaxGoroutines: runtime.NumCPU(),
+	}
+	iterator.ForEach(maps.Keys(files), func(i *string) {
+		var (
+			filename = *i
+		)
 		slog.Info(filename)
 
 		// TODO: 此处会运行多次 packages.Load, 非常影响性能
@@ -441,7 +451,8 @@ func ParseHandler(files map[string]*ast.File) ([]Handler, []Handler) {
 				}
 			}
 		}
-	}
+	})
+
 	return succ, fail
 }
 
