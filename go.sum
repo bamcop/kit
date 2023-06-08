@@ -4,10 +4,6 @@ ariga.io/atlas v0.11.1-0.20230516193854-999ff0f44c1a h1:HPTVomXdhgzBuV3SDNJWupCN
 ariga.io/atlas v0.11.1-0.20230516193854-999ff0f44c1a/go.mod h1:+TR129FJZ5Lvzms6dvCeGWh1yR6hMvmXBhug4hrNIGk=
 entgo.io/contrib v0.3.5 h1:wY85TgRp3j5ix/SZ9IE6Ob5lObHFmVUYH0ZFw1D5Hzc=
 entgo.io/contrib v0.3.5/go.mod h1:R5HiFszVD8OVOZKFGRbqYogRxK7z1ruzWyEEesjQwE0=
-entgo.io/contrib v0.3.6-0.20230219090112-fc092e969bd2 h1:NqOX2mGWiFgBOAAF4JAeBcY+5qbVep+YyWOmoU83E28=
-entgo.io/contrib v0.3.6-0.20230219090112-fc092e969bd2/go.mod h1:R5HiFszVD8OVOZKFGRbqYogRxK7z1ruzWyEEesjQwE0=
-entgo.io/ent v0.11.9-0.20230216215715-e671138bb8de h1:hARi+KezsiVy4JCrB32PU/bX4qGjVHXOGqb6v5Qd0MQ=
-entgo.io/ent v0.11.9-0.20230216215715-e671138bb8de/go.mod h1:ZmSC/TQHWtGOpt7JtL+pa9Ivav1/cUKUf101Q/iLBNo=
 entgo.io/ent v0.12.3 h1:N5lO2EOrHpCH5HYfiMOCHYbo+oh5M8GjT0/cx5x6xkk=
 entgo.io/ent v0.12.3/go.mod h1:AigGGx+tbrBBYHAzGOg8ND661E5cxx1Uiu5o/otJ6Yg=
 entgo.io/ent v0.12.4-0.20230515210056-2924da51758b h1:zGSJFnIJhky+t86s1xWa/ZwP1HKYMll59f1w2b0aeeI=

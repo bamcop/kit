@@ -4,8 +4,8 @@ go 1.19
 
 require (
 	ariga.io/atlas v0.11.1-0.20230516193854-999ff0f44c1a
-	entgo.io/contrib v0.3.6-0.20230219090112-fc092e969bd2
-	entgo.io/ent v0.11.9-0.20230216215715-e671138bb8de
+	entgo.io/contrib v0.3.5
+	entgo.io/ent v0.12.4-0.20230515210056-2924da51758b
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/dave/dst v0.27.2
 	github.com/dop251/goja v0.0.0-20230304130813-e2f543bf4b4c
