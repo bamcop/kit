@@ -435,7 +435,7 @@ func (app *AppContext) WriteAxios() {
 
 func axiosPath(prefix string, handler Handler) string {
 	if handler.GroupKey == "" {
-		return strconv.Quote(filepath.Join(prefix, strcase.ToSnake(handler.Name)))
+		return strconv.Quote(filepath.Join(prefix, "default", strcase.ToSnake(handler.Name)))
 	} else {
 		return strconv.Quote(filepath.Join(prefix, strcase.ToSnake(handler.GroupKey), strcase.ToSnake(handler.Name)))
 	}
