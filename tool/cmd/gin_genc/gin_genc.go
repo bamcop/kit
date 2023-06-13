@@ -49,15 +49,19 @@ var (
 	}
 )
 
-type Option func(*AppContext)
+type (
+	Option    func(*AppContext)
+	hGroupKey func(Name string, NameSpace string) string
+)
 
 type AppContext struct {
-	root            string   // 根路径
-	handler_root    string   // gin handler 根路径
-	module          string   // go.mod 对应的名称
-	pkgName         string   // types_gen.go 和 router_gen.go 所在的目录名称
-	output          string   // types_gen.go 和 router_gen.go 所在的路径
-	extraImport     []string // router_gen.go 额外需要的 import
+	root            string    // 根路径
+	handler_root    string    // gin handler 根路径
+	module          string    // go.mod 对应的名称
+	pkgName         string    // types_gen.go 和 router_gen.go 所在的目录名称
+	output          string    // types_gen.go 和 router_gen.go 所在的路径
+	extraImport     []string  // router_gen.go 额外需要的 import
+	groupKey        hGroupKey // 对路由进行分组的函数
 	filter          func(fs.FileInfo) bool
 	files           map[string]*ast.File
 	succ            []Handler
@@ -71,6 +75,10 @@ type AppContext struct {
 }
 
 func NewApp(srvRoot string, webRoot string, module string, options ...Option) *AppContext {
+	defaultGroupKey := func(Name string, NameSpace string) string {
+		return ""
+	}
+
 	app := &AppContext{
 		root:            srvRoot,
 		handler_root:    filepath.Join(srvRoot, "model"),
@@ -78,6 +86,7 @@ func NewApp(srvRoot string, webRoot string, module string, options ...Option) *A
 		pkgName:         "skia_gen",
 		output:          filepath.Join(srvRoot, "skia_gen"),
 		extraImport:     []string{},
+		groupKey:        defaultGroupKey,
 		filter:          nil,
 		files:           nil,
 		succ:            nil,
@@ -119,6 +128,12 @@ func WithCtxProvider(ctxProvider string) Option {
 func WithExtraImport(extraImport []string) Option {
 	return func(app *AppContext) {
 		app.extraImport = extraImport
+	}
+}
+
+func WithGroupKey(fn func(string, string) string) Option {
+	return func(app *AppContext) {
+		app.groupKey = fn
 	}
 }
 
@@ -170,6 +185,7 @@ func (app *AppContext) ParseHandler() {
 		}
 		dir := filepath.Dir(rel)
 		app.succ[i].PkgPath = filepath.Join(app.module, dir)
+		app.succ[i].GroupKey = app.groupKey(app.succ[i].Name, app.succ[i].NameSpace)
 	}
 }
 
@@ -177,7 +193,8 @@ func (app *AppContext) MakeRouter() {
 	var str string
 	str = strings.Replace(cors, "// TODO: package", fmt.Sprintf("package %s\n", app.pkgName), -1)
 
-	if len(app.succ) > 0 {
+	// 添加 import 语句
+	{
 		var b strings.Builder
 		for _, handler := range app.succ {
 			b.WriteString(fmt.Sprintf("\t%s\n", strconv.Quote(handler.PkgPath)))
@@ -186,9 +203,30 @@ func (app *AppContext) MakeRouter() {
 			b.WriteString(fmt.Sprintf("\t%s\n", strconv.Quote(str)))
 		}
 		str = strings.Replace(str, "// TODO: import", b.String(), -1)
+	}
 
-		b.Reset()
-		for _, handler := range app.succ {
+	groups := lo.GroupBy(app.succ, func(item Handler) string {
+		return item.GroupKey
+	})
+	keys := maps.Keys(groups)
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
+
+	var b strings.Builder
+	for _, key := range keys {
+		var (
+			group = key
+			succ  = groups[key]
+		)
+
+		if key == "" {
+			group = "Default"
+		}
+		b.WriteString(fmt.Sprintf("func AddRouteGroup%s(engine *gin.Engine, prefix string, handlers ...gin.HandlerFunc) {\n", group))
+		b.WriteString(fmt.Sprintf("\tr := engine.Group(filepath.Join(prefix, %s), handlers...)\n\n", strconv.Quote(strcase.ToSnake(group))))
+
+		for _, handler := range succ {
 			call_name := fmt.Sprintf("%s.%s", filepath.Base(handler.PkgPath), handler.Name)
 			if handler.NameSpace != "" {
 				call_name = fmt.Sprintf(
@@ -214,9 +252,11 @@ func (app *AppContext) MakeRouter() {
 				))
 			}
 		}
-		str = strings.Replace(str, "// TODO: handler", b.String(), -1)
+
+		b.WriteString("}\n\n")
 	}
 
+	str = str + b.String()
 	err := ioutil.WriteFile(path.Join(app.output, "router_gen.go"), []byte(str), 0644)
 	if err != nil {
 		panic(err)
@@ -359,7 +399,7 @@ func (app *AppContext) WriteAxios() {
 				b.WriteString(fmt.Sprintf("\tstatic %s(params) {\n", helper.Underscore(handler.Name)))
 				b.WriteString(fmt.Sprintf(
 					"\t\treturn axios_instance.post(%s, params).then((res) => res.data);\n",
-					strconv.Quote(filepath.Join(app.api_prefix, strcase.ToSnake(handler.Name))),
+					axiosPath(app.api_prefix, handler),
 				))
 				if i != len(handlers)-1 {
 					b.WriteString("\t}\n\n")
@@ -373,7 +413,7 @@ func (app *AppContext) WriteAxios() {
 				b.WriteString(fmt.Sprintf("\t\t%s: (params) => {\n", helper.Underscore(handler.Name)))
 				b.WriteString(fmt.Sprintf(
 					"\t\t\treturn axios_instance.post(%s, params).then((res) => res.data);\n",
-					strconv.Quote(filepath.Join(app.api_prefix, strcase.ToSnake(handler.Name))),
+					axiosPath(app.api_prefix, handler),
 				))
 				if i != len(handlers)-1 {
 					b.WriteString("\t\t}\n\n")
@@ -393,11 +433,20 @@ func (app *AppContext) WriteAxios() {
 	}
 }
 
+func axiosPath(prefix string, handler Handler) string {
+	if handler.GroupKey == "" {
+		return strconv.Quote(filepath.Join(prefix, strcase.ToSnake(handler.Name)))
+	} else {
+		return strconv.Quote(filepath.Join(prefix, strcase.ToSnake(handler.GroupKey), strcase.ToSnake(handler.Name)))
+	}
+}
+
 type Handler struct {
 	Name         string
 	NameSpace    string
 	Filename     string
 	PkgPath      string
+	GroupKey     string
 	Request      *ast.StructType
 	Response     *ast.StructType
 	IsRawContext bool

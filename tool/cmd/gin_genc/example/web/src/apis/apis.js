@@ -2,19 +2,19 @@
 import axios_instance from "./index";
 
 class remote {
+	static foo(params) {
+		return axios_instance.post("api/g_1/foo", params).then((res) => res.data);
+	}
+
+	static hello(params) {
+		return axios_instance.post("api/hello", params).then((res) => res.data);
+	}
 	static global = {
 		bar: (params) => {
 			return axios_instance.post("api/bar", params).then((res) => res.data);
 		}
 	}
 
-	static foo(params) {
-		return axios_instance.post("api/foo", params).then((res) => res.data);
-	}
-
-	static hello(params) {
-		return axios_instance.post("api/hello", params).then((res) => res.data);
-	}
 }
 
 window.remote = remote

@@ -14,5 +14,11 @@ func main() {
 		"github.com/bamcop/kit/tool/cmd/gin_genc/example/srv",
 		gin_genc.WithCtxProvider("srv.NewAppContext"),
 		gin_genc.WithExtraImport([]string{"github.com/bamcop/kit/tool/cmd/gin_genc/example/srv"}),
+		gin_genc.WithGroupKey(func(name string, nameSpace string) string {
+			if name == "Foo" {
+				return "G1"
+			}
+			return ""
+		}),
 	).Start()
 }
