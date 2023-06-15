@@ -7,11 +7,13 @@ require (
 	entgo.io/contrib v0.3.5
 	entgo.io/ent v0.12.4-0.20230515210056-2924da51758b
 	github.com/Jeffail/gabs/v2 v2.7.0
+	github.com/OneOfOne/struct2ts v1.0.6
 	github.com/dave/dst v0.27.2
 	github.com/dop251/goja v0.0.0-20230304130813-e2f543bf4b4c
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/validator/v10 v10.12.0
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/hashicorp/yamux v0.1.1
 	github.com/iancoleman/strcase v0.2.0
 	github.com/imdario/mergo v0.3.13
 	github.com/jinzhu/copier v0.3.5
@@ -19,19 +21,21 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/samber/lo v1.38.1
 	github.com/smallnest/chanx v1.1.0
+	github.com/sourcegraph/conc v0.3.0
 	github.com/szmcdull/go-forceexport v0.0.0-20220219034051-4c613697efb7
 	github.com/titanous/json5 v1.0.0
 	github.com/zlabwork/snowflake v1.0.0
 	go.uber.org/zap v1.24.0
 	go.uber.org/zap/exp v0.0.0-20230321144332-845ca51d5b8d
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
+	golang.org/x/tools v0.8.1-0.20230428195545-5283a0178901
+	google.golang.org/grpc v1.52.3
+	google.golang.org/protobuf v1.30.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
-	github.com/OneOfOne/struct2ts v1.0.6 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/agiledragon/gomonkey v2.0.2+incompatible // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/bufbuild/protocompile v0.5.1 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
@@ -58,8 +62,9 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/parnurzeal/gorequest v0.2.16 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
-	github.com/sourcegraph/conc v0.3.0 // indirect
+	github.com/pkg/errors v0.8.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	github.com/zclconf/go-cty v1.13.1 // indirect
@@ -71,7 +76,7 @@ require (
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
-	golang.org/x/tools v0.8.1-0.20230428195545-5283a0178901 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	moul.io/http2curl v1.0.0 // indirect
 )
