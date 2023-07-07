@@ -79,7 +79,7 @@ func (i *importer) Execute() error {
 		table := table
 
 		mutator := &schemast.UpsertSchema{
-			Name: strcase.ToCamel(strings.TrimLeft(table.Name, "t_")),
+			Name: strcase.ToCamel(strings.TrimPrefix(table.Name, "t_")),
 			Annotations: []schema2.Annotation{
 				entsql.Annotation{
 					Table: table.Name,

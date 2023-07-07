@@ -121,10 +121,21 @@ func (b *fieldBuilder) Default(expr schema.Expr) *fieldBuilder {
 	case reflect.Float64:
 		v, _ = strconv.ParseFloat(expr.(*schema.Literal).V, 10)
 	case reflect.Bool:
-		if expr.(*schema.Literal).V == "0" || expr.(*schema.Literal).V == "1" {
-			v = expr.(*schema.Literal).V != "0"
-		} else {
-			fmt.Println("unexpect value", expr)
+		lit, ok := expr.(*schema.Literal)
+		if !ok {
+			panic(fmt.Sprintf("not schema.Literal"))
+		}
+		switch lit.V {
+		case "0":
+			v = false
+		case "false":
+			v = false
+		case "1":
+			v = true
+		case "true":
+			v = true
+		default:
+			panic(fmt.Sprintf("unexpect value: %s", lit.V))
 		}
 	default:
 		fmt.Println(1)
