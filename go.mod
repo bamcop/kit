@@ -1,10 +1,10 @@
 module github.com/bamcop/kit
 
-go 1.19
+go 1.20
 
 require (
 	ariga.io/atlas v0.11.1-0.20230516193854-999ff0f44c1a
-	entgo.io/contrib v0.3.5
+	entgo.io/contrib v0.4.5
 	entgo.io/ent v0.12.4-0.20230515210056-2924da51758b
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/OneOfOne/struct2ts v1.0.6
@@ -41,6 +41,7 @@ require (
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/chzyer/readline v1.5.0 // indirect
+	github.com/cosmos72/gomacro v0.0.0-20230311134013-6835e0d66346 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
@@ -53,18 +54,22 @@ require (
 	github.com/google/pprof v0.0.0-20230207041349-798e818bf904 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.16.2 // indirect
+	github.com/helloyi/goastch v0.1.0 // indirect
 	github.com/jhump/protoreflect v1.15.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leodido/go-urn v1.2.2 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/parnurzeal/gorequest v0.2.16 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
+	github.com/peterh/liner v1.2.2 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	github.com/zclconf/go-cty v1.13.1 // indirect

@@ -1,7 +1,6 @@
 package kent_import
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"strings"
@@ -20,12 +19,12 @@ import (
 )
 
 type importer struct {
-	DSN           string
-	SchemaDir     string
-	SkipFields    []string
-	AddImports    []string
-	FieldProvider func(table string, column string) any
-	AppendHandler func(name string, buffer *bytes.Buffer)
+	DSN               string
+	SchemaDir         string
+	SkipFields        []string
+	AddImports        []string
+	FieldProvider     func(table string, column string) any
+	AstRewriteHandler func(src []byte) ([]byte, error)
 }
 
 func NewImporter(
@@ -33,16 +32,16 @@ func NewImporter(
 	dir string,
 	skipFields []string,
 	addImports []string,
-	appendHandler func(string, *bytes.Buffer),
 	provider func(string, string) any,
+	rewriter func(src []byte) ([]byte, error),
 ) *importer {
 	return &importer{
-		DSN:           dsn,
-		SchemaDir:     dir,
-		SkipFields:    skipFields,
-		AddImports:    addImports,
-		AppendHandler: appendHandler,
-		FieldProvider: provider,
+		DSN:               dsn,
+		SchemaDir:         dir,
+		SkipFields:        skipFields,
+		AddImports:        addImports,
+		FieldProvider:     provider,
+		AstRewriteHandler: rewriter,
 	}
 }
 
@@ -79,13 +78,11 @@ func (i *importer) Execute() error {
 	for _, table := range info.Tables {
 		table := table
 
-		withCommentsEnabled := true
 		mutator := &schemast.UpsertSchema{
 			Name: strcase.ToCamel(strings.TrimLeft(table.Name, "t_")),
 			Annotations: []schema2.Annotation{
 				entsql.Annotation{
-					Table:        table.Name,
-					WithComments: &withCommentsEnabled,
+					Table: table.Name,
 				},
 			},
 		}
@@ -126,7 +123,7 @@ func (i *importer) Execute() error {
 		panic(fmt.Errorf("failed: %v", err))
 	}
 
-	dstfmt.FmtDir(i.SchemaDir, i.AppendHandler, i.AddImports)
+	dstfmt.FmtDir(i.SchemaDir, i.AstRewriteHandler, i.AddImports)
 	return nil
 }
 

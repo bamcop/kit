@@ -15,7 +15,7 @@ import (
 	"github.com/dave/dst/decorator"
 )
 
-func H(filename string, hAppend func(string, *bytes.Buffer), imports []string) {
+func H(filename string, hRewrite func(b []byte) ([]byte, error), imports []string) {
 	b, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)
@@ -55,23 +55,6 @@ func H(filename string, hAppend func(string, *bytes.Buffer), imports []string) {
 	for _, decl := range f.Decls {
 		decl := decl
 
-		// 添加注解
-		if fn, ok := decl.(*dst.FuncDecl); ok && fn.Name.Name == "Annotations" && len(fn.Body.List) > 0 {
-			if result, ok := fn.Body.List[0].(*dst.ReturnStmt); ok && len(result.Results) > 0 {
-				if expr, ok := result.Results[0].(*dst.CompositeLit); ok {
-					expr.Elts = append(expr.Elts, &dst.CallExpr{
-						Fun: &dst.SelectorExpr{
-							X:   &dst.Ident{Name: "entsql"},
-							Sel: &dst.Ident{Name: "WithComments"},
-						},
-						Args: []dst.Expr{
-							&dst.Ident{Name: "true"},
-						},
-					})
-				}
-			}
-		}
-
 		// 链式调用换行
 		if fn, ok := decl.(*dst.FuncDecl); ok && fn.Name.Name == "Fields" {
 			FmtFuncFields(fn)
@@ -83,8 +66,13 @@ func H(filename string, hAppend func(string, *bytes.Buffer), imports []string) {
 		panic(err)
 	}
 
-	if hAppend != nil {
-		hAppend(filename, &buff)
+	if hRewrite != nil {
+		b, err := hRewrite(buff.Bytes())
+		if err != nil {
+			panic(err)
+		}
+		buff.Reset()
+		buff.Write(b)
 	}
 
 	// 添加 import
@@ -171,7 +159,7 @@ func AddImports(content string, imports []string) []byte {
 	return buff.Bytes()
 }
 
-func FmtDir(dirname string, hAppend func(string, *bytes.Buffer), addImports []string) {
+func FmtDir(dirname string, hRewrite func(src []byte) ([]byte, error), addImports []string) {
 	entities, err := os.ReadDir(dirname)
 	if err != nil {
 		panic(err)
@@ -180,7 +168,7 @@ func FmtDir(dirname string, hAppend func(string, *bytes.Buffer), addImports []st
 		entity := entity
 
 		if !entity.IsDir() && strings.HasSuffix(entity.Name(), ".go") {
-			H(filepath.Join(dirname, entity.Name()), hAppend, addImports)
+			H(filepath.Join(dirname, entity.Name()), hRewrite, addImports)
 		}
 	}
 }
