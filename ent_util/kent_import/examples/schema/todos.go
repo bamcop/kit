@@ -1,12 +1,12 @@
 package schema
 
 import (
+	"skia/pkg/ent_util"
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
-	"skia/pkg/ent_util"
 )
 
 type Todos struct {
@@ -31,6 +31,7 @@ func (Todos) Fields() []ent.Field {
 			StructTag("json:\"completed\"").
 			Default(false),
 	}
+
 }
 
 func (Todos) Edges() []ent.Edge {

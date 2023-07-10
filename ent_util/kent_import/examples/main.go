@@ -88,7 +88,7 @@ func main() {
 					if !ok {
 						return true
 					}
-					if v.Name.Name != "Annotations" {
+					if !lo.Contains([]string{"Annotations", "Mixin"}, v.Name.Name) {
 						return true
 					}
 					return false

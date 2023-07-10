@@ -1,12 +1,12 @@
 package schema
 
 import (
+	"skia/pkg/ent_util"
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
-	"skia/pkg/ent_util"
 )
 
 type Users struct {
@@ -25,6 +25,7 @@ func (Users) Fields() []ent.Field {
 			StructTag("json:\"channel_uid\"").
 			SchemaType(map[string]string{"mysql": "TEXT"}),
 	}
+
 }
 
 func (Users) Edges() []ent.Edge {
