@@ -184,7 +184,7 @@ func (app *AppContext) ParseHandler() {
 			panic(err)
 		}
 		dir := filepath.Dir(rel)
-		app.succ[i].PkgPath = filepath.Join(app.module, dir)
+		app.succ[i].PkgPath = path.Join(app.module, dir)
 		app.succ[i].GroupKey = app.groupKey(app.succ[i].Name, app.succ[i].NameSpace)
 	}
 }
@@ -224,7 +224,7 @@ func (app *AppContext) MakeRouter() {
 			group = "Default"
 		}
 		b.WriteString(fmt.Sprintf("func AddRouteGroup%s(engine *gin.Engine, prefix string, handlers ...gin.HandlerFunc) {\n", group))
-		b.WriteString(fmt.Sprintf("\tr := engine.Group(filepath.Join(prefix, %s), handlers...)\n\n", strconv.Quote(strcase.ToSnake(group))))
+		b.WriteString(fmt.Sprintf("\tr := engine.Group(path.Join(prefix, %s), handlers...)\n\n", strconv.Quote(strcase.ToSnake(group))))
 
 		for _, handler := range succ {
 			call_name := fmt.Sprintf("%s.%s", filepath.Base(handler.PkgPath), handler.Name)
@@ -279,7 +279,8 @@ func (app *AppContext) Tygo() {
 	}
 
 	var str string
-	str = strings.Replace(struct2ts_code, "// TODO: import", strconv.Quote(filepath.Join(app.module, app.pkgName)), -1)
+	str = strings.Replace(struct2ts_code, "// TODO: import", strconv.Quote(path.Join(app.module, app.pkgName)), -1)
+	fmt.Println("==>", path.Join(app.module, app.pkgName))
 	str = strings.Replace(str, "\t// TODO: s.Add", b.String(), -1)
 
 	err := ioutil.WriteFile(filepath.Join(app.root, "tmp/struct2ts/struct2ts.go"), []byte(str), 0644)
@@ -435,9 +436,9 @@ func (app *AppContext) WriteAxios() {
 
 func axiosPath(prefix string, handler Handler) string {
 	if handler.GroupKey == "" {
-		return strconv.Quote(filepath.Join(prefix, "default", strcase.ToSnake(handler.Name)))
+		return strconv.Quote(path.Join(prefix, "default", strcase.ToSnake(handler.Name)))
 	} else {
-		return strconv.Quote(filepath.Join(prefix, strcase.ToSnake(handler.GroupKey), strcase.ToSnake(handler.Name)))
+		return strconv.Quote(path.Join(prefix, strcase.ToSnake(handler.GroupKey), strcase.ToSnake(handler.Name)))
 	}
 }
 

@@ -115,6 +115,10 @@ func WrapX[T1 IGinContext, T2 any](h func(T1, T2) (any, error), f func(ctx *gin.
 			return
 		}
 
+		if ctx.IsAborted() {
+			return
+		}
+
 		HandlerSuccess(ctx, resp)
 	}
 }
